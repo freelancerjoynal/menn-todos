@@ -44,4 +44,63 @@ const createTodo = async (req, res) => {
   }
 };
 
-export { createTodo };
+const getTodos = async (req,res) => {
+  const user = req.decodedToken;
+
+try {
+  const todos = await todoModel.find({ user: user.id });
+  res.status(200).json({
+    status: "success",
+    data: todos
+  });
+} catch (error) {
+  res.status(400).json({
+    status: "fail",
+    message: error.message
+  });
+}
+}
+
+const updateTodo = async (req, res) => {
+  try{
+    const { id } = req.params;
+    const { title, description, completed } = req.body;
+    //varify the todos data
+    if (!title || !description) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Title and description are required",
+      });
+    }
+    //varify the completed boolean or not
+    if (completed !== undefined && typeof completed !== "boolean") {
+      return res.status(400).json({
+        status: "fail",
+        message: "Completed must be a boolean value",
+      });
+    }
+    //update the todo
+    const todo = await todoModel.findByIdAndUpdate(id, {
+      title,
+      description,
+      completed,
+    }, {
+      new: true,
+      runValidators: true,
+    });
+    //send response
+    res.status(200).json({
+      status: "success",
+      message: "Todo updated successfully",
+      data: todo,
+    });	
+    
+  }catch(error){
+    res.json({
+      success: false,
+      message: error.message
+    })
+  }
+}
+
+export { createTodo, getTodos, updateTodo };
