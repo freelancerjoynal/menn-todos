@@ -35,7 +35,7 @@ const createTodo = async (req, res) => {
     });
 
 
-    
+
   } catch (error) {
     res.status(400).json({
       status: "fail",
@@ -44,25 +44,25 @@ const createTodo = async (req, res) => {
   }
 };
 
-const getTodos = async (req,res) => {
+const getTodos = async (req, res) => {
   const user = req.decodedToken;
 
-try {
-  const todos = await todoModel.find({ user: user.id });
-  res.status(200).json({
-    status: "success",
-    data: todos
-  });
-} catch (error) {
-  res.status(400).json({
-    status: "fail",
-    message: error.message
-  });
-}
+  try {
+    const todos = await todoModel.find({ user: user.id });
+    res.status(200).json({
+      status: "success",
+      data: todos
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "fail",
+      message: error.message
+    });
+  }
 }
 
 const updateTodo = async (req, res) => {
-  try{
+  try {
     const { id } = req.params;
     const { title, description, completed } = req.body;
     //varify the todos data
@@ -93,9 +93,9 @@ const updateTodo = async (req, res) => {
       status: "success",
       message: "Todo updated successfully",
       data: todo,
-    });	
-    
-  }catch(error){
+    });
+
+  } catch (error) {
     res.json({
       success: false,
       message: error.message
@@ -103,4 +103,26 @@ const updateTodo = async (req, res) => {
   }
 }
 
-export { createTodo, getTodos, updateTodo };
+const deleteTodo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const todo = await todoModel.findByIdAndDelete(id);
+    if (!todo) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Todo not found",
+      });
+    }
+    res.status(200).json({
+      status: "success", 
+      message: "Todo deleted successfully",
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "fail",
+      message: error.message
+    });
+  }
+};
+
+    export { createTodo, getTodos, updateTodo, deleteTodo };
